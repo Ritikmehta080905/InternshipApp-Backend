@@ -1,25 +1,21 @@
 import os
 from pathlib import Path
-# from dotenv import load_dotenv  # REMOVED - Render provides env vars directly
 from datetime import timedelta
-import dj_database_url  # Added for Render
-
-# Load environment variables - REMOVED dotenv loading
-# load_dotenv()  # Render provides environment variables directly
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ---------------- SECURITY ----------------
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-secret-key')  # fallback for local
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "internshipapp-backend.onrender.com",  # Added explicit Render domain
+    "internshipapp-backend.onrender.com",  # Render domain
 ]
 
-# Add Render domain dynamically
+# Add Render external hostname dynamically
 RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
@@ -45,7 +41,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',  # must be first
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # for static files in production
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # static files in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -74,19 +70,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
 # ---------------- DATABASE ----------------
-# Force use of DATABASE_URL when available (on Render)
 if os.environ.get('DATABASE_URL'):
-    print("🔄 Using DATABASE_URL from environment...")
     DATABASES = {
         'default': dj_database_url.config(
-            default=os.environ.get('DATABASE_URL'),
+            default=os.environ['DATABASE_URL'],
             conn_max_age=600,
-            ssl_require=True  # Force SSL for production
+            ssl_require=True
         )
     }
 else:
-    # Fallback for local development only - use SQLite instead of PostgreSQL
-    print("🔄 Using SQLite fallback for local development...")
+    # Fallback for local development
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -117,18 +110,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ---------------- CORS ----------------
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",   # React Vite dev
+    "http://localhost:5173",   # React Vite
     "http://127.0.0.1:5173",
-    "http://localhost:3000",   # React CRA dev
+    "http://localhost:3000",   # React CRA
     "http://127.0.0.1:3000",
     "http://localhost:8000",   # Django dev
     "http://127.0.0.1:8000",
-    "https://*.vercel.app",    # Vercel deployment
-    "https://internshipapp-backend.onrender.com",  # Explicit Render URL
+    "https://internshipapp-backend.onrender.com",  # Render backend
 ]
 
+# Allow wildcard only in DEBUG
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = DEBUG  # allow all in dev
 
 CORS_ALLOW_HEADERS = [
     'content-type',
@@ -148,8 +141,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://*.vercel.app",    # Vercel deployment
-    "https://internshipapp-backend.onrender.com",  # Explicit Render URL
+    "https://internshipapp-backend.onrender.com",
 ]
 
 if RENDER_EXTERNAL_HOSTNAME:
@@ -157,7 +149,7 @@ if RENDER_EXTERNAL_HOSTNAME:
 
 # ---------------- GRAPHQL ----------------
 GRAPHENE = {
-    'SCHEMA': 'myapp.schema.schema',
+    'SCHEMA': 'myapp.schema.schema',  # keep consistent
     'MIDDLEWARE': [
         'graphql_jwt.middleware.JSONWebTokenMiddleware',
     ],
@@ -175,7 +167,7 @@ GRAPHQL_JWT = {
     'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=30),
 }
 
-# ---------------- PRODUCTION SETTINGS ----------------
+# ---------------- PRODUCTION SECURITY ----------------
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -187,44 +179,3 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# TEMPORARY CSRF RELAXATION FOR TESTING - REMOVE AFTER IT WORKS
-if not DEBUG:
-    # Allow all origins temporarily
-    CSRF_TRUSTED_ORIGINS = [
-        "https://*",
-        "http://*",
-        "https://internshipapp-backend.onrender.com",
-        "https://*.vercel.app"
-    ]
-    CORS_ALLOW_ALL_ORIGINS = True
-    CORS_ALLOW_CREDENTIALS = True
-
-# DEBUG: Check database connection
-print("🔄 Checking database connection...")
-try:
-    import psycopg2
-    conn = psycopg2.connect(os.environ.get('DATABASE_URL', ''))
-    print("✅ Database connection successful!")
-    conn.close()
-except Exception as e:
-    print(f"❌ Database connection failed: {e}")
-
-# DEBUG: Check Django setup
-print("🔄 Checking Django setup...")
-try:
-    import django
-    from django.conf import settings
-    if not settings.configured:
-        settings.configure()
-    django.setup()
-    print("✅ Django setup successful!")
-except Exception as e:
-    print(f"❌ Django setup failed: {e}")
-
-# DEBUG: Check GraphQL schema
-print("🔄 Checking GraphQL schema...")
-try:
-    from myproject.schema import schema
-    print("✅ GraphQL schema imported successfully!")
-except Exception as e:
-    print(f"❌ GraphQL schema import failed: {e}")
