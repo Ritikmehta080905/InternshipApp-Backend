@@ -4,6 +4,7 @@ from .models import Book, Favorite
 from django.db.models import Q
 from django.core.paginator import Paginator
 
+# ---------------------- Types ----------------------
 class BookType(DjangoObjectType):
     class Meta:
         model = Book
@@ -18,6 +19,7 @@ class BookPaginationType(graphene.ObjectType):
     has_next = graphene.Boolean()
     has_previous = graphene.Boolean()
 
+# ---------------------- Queries ----------------------
 class Query(graphene.ObjectType):
     all_books = graphene.List(BookType, search=graphene.String())
     books_paginated = graphene.Field(
@@ -58,6 +60,7 @@ class Query(graphene.ObjectType):
         except Book.DoesNotExist:
             return None
 
+# ---------------------- Mutations ----------------------
 class CreateBook(graphene.Mutation):
     class Arguments:
         title = graphene.String(required=True)
@@ -125,12 +128,12 @@ class ToggleFavorite(graphene.Mutation):
     book = graphene.Field(BookType)
 
     @classmethod
-    def mutate(cls, root, info, book_id, add):  # ← FIXED parameter name to match
+    def mutate(cls, root, info, book_id, add):
         user = info.context.user
         if user.is_anonymous:
             return ToggleFavorite(success=False, book=None)
         try:
-            book = Book.objects.get(pk=book_id)  # ← Use book_id here
+            book = Book.objects.get(pk=book_id)
         except Book.DoesNotExist:
             return ToggleFavorite(success=False, book=None)
 
@@ -147,5 +150,6 @@ class Mutation(graphene.ObjectType):
     delete_book = DeleteBook.Field()
     toggle_favorite = ToggleFavorite.Field()
 
-# ADD THESE LINES TO EXPORT THE CLASSES
-__all__ = ['Query', 'Mutation']
+# ---------------------- Schema ----------------------
+# THIS LINE IS CRUCIAL FOR GraphQLView
+schema = graphene.Schema(query=Query, mutation=Mutation)
