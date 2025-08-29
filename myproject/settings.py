@@ -221,3 +221,11 @@ try:
     print("✅ Django setup successful!")
 except Exception as e:
     print(f"❌ Django setup failed: {e}")
+
+    # DEBUG: Check GraphQL schema
+print("🔄 Checking GraphQL schema...")
+try:
+    from myproject.schema import schema
+    print("✅ GraphQL schema imported successfully!")
+except Exception as e:
+    print(f"❌ GraphQL schema import failed: {e}")
