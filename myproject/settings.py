@@ -74,24 +74,23 @@ TEMPLATES = [
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
 # ---------------- DATABASE ----------------
-# Use Render's DATABASE_URL if available, else local PostgreSQL
+# Force use of DATABASE_URL when available (on Render)
 if os.environ.get('DATABASE_URL'):
+    print("🔄 Using DATABASE_URL from environment...")
     DATABASES = {
         'default': dj_database_url.config(
             default=os.environ.get('DATABASE_URL'),
             conn_max_age=600,
-            ssl_require=not DEBUG
+            ssl_require=True  # Force SSL for production
         )
     }
 else:
+    # Fallback for local development only - use SQLite instead of PostgreSQL
+    print("🔄 Using SQLite fallback for local development...")
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
