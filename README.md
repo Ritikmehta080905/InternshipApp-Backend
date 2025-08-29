@@ -32,3 +32,17 @@ python -m venv venv
 venv\Scripts\activate
 # macOS/Linux
 source venv/bin/activate
+
+3️⃣ Install Dependencies
+# If requirements.txt exists
+pip install -r requirements.txt
+
+# Otherwise install manually
+pip install Django==5.2.5
+pip install graphene-django==3.2.0
+pip install django-cors-headers==4.3.1
+pip install django-graphql-jwt==0.3.4
+pip install psycopg2-binary==2.9.9
+
+# Save installed packages
+pip freeze > requirements.txt
