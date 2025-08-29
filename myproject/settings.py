@@ -9,17 +9,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'insecure-secret-key')  # fallback for local
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
+# ---------------- ALLOWED HOSTS ----------------
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     "internshipapp-backend.onrender.com",
-    ".onrender.com",  # allow ALL Render subdomains
+    ".onrender.com",  # allows Render subdomains
 ]
-
-# Add Render external hostname dynamically
-RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
 # ---------------- APPS ----------------
 INSTALLED_APPS = [
@@ -80,7 +76,6 @@ if os.environ.get('DATABASE_URL'):
         )
     }
 else:
-    # Fallback for local development
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -96,6 +91,24 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'graphql_jwt.backends.JSONWebTokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# ---------------- GRAPHQL JWT ----------------
+GRAPHENE = {
+    'SCHEMA': 'myapp.schema.schema',
+    'MIDDLEWARE': ['graphql_jwt.middleware.JSONWebTokenMiddleware'],
+}
+
+GRAPHQL_JWT = {
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
+    'JWT_EXPIRATION_DELTA': timedelta(days=7),
+    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=30),
+}
+
 # ---------------- INTERNATIONALIZATION ----------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
@@ -104,26 +117,24 @@ USE_TZ = True
 
 # ---------------- STATIC & MEDIA ----------------
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # Render uses this
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ---------------- CORS ----------------
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",   # React Vite
+    "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "http://localhost:3000",   # React CRA
+    "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost:8000",   # Django dev
+    "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://internshipapp-backend.onrender.com",  # Render backend
+    "https://internshipapp-backend.onrender.com",
 ]
 
-# Allow wildcard only in DEBUG
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOW_CREDENTIALS = True
-
 CORS_ALLOW_HEADERS = [
     'content-type',
     'authorization',
@@ -143,31 +154,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "https://internshipapp-backend.onrender.com",
-    "https://*.onrender.com",  # allow ALL Render subdomains
+    ".onrender.com",
 ]
-
-if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
-
-# ---------------- GRAPHQL ----------------
-GRAPHENE = {
-    'SCHEMA': 'myapp.schema.schema',  # keep consistent
-    'MIDDLEWARE': [
-        'graphql_jwt.middleware.JSONWebTokenMiddleware',
-    ],
-}
-
-AUTHENTICATION_BACKENDS = [
-    'graphql_jwt.backends.JSONWebTokenBackend',
-    'django.contrib.auth.backends.ModelBackend',
-]
-
-GRAPHQL_JWT = {
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
-    'JWT_EXPIRATION_DELTA': timedelta(days=7),
-    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=30),
-}
 
 # ---------------- PRODUCTION SECURITY ----------------
 if not DEBUG:
@@ -176,7 +164,8 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
