@@ -1,11 +1,11 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+# from dotenv import load_dotenv  # REMOVED - Render provides env vars directly
 from datetime import timedelta
 import dj_database_url  # Added for Render
 
-# Load environment variables
-load_dotenv()
+# Load environment variables - REMOVED dotenv loading
+# load_dotenv()  # Render provides environment variables directly
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -222,7 +222,7 @@ try:
 except Exception as e:
     print(f"❌ Django setup failed: {e}")
 
-    # DEBUG: Check GraphQL schema
+# DEBUG: Check GraphQL schema
 print("🔄 Checking GraphQL schema...")
 try:
     from myproject.schema import schema
