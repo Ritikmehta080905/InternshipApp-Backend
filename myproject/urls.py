@@ -2,30 +2,38 @@ from django.contrib import admin
 from django.urls import path
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import RedirectView
-from django.http import HttpResponse  # ADD THIS IMPORT
+from django.http import JsonResponse
 
-from myproject.schema import schema  # Project-level GraphQL schema
+# Import schema consistently from myapp (not myproject)
+from myapp.schema import schema  
+
+# Health check endpoint
+def health(request):
+    return JsonResponse({"status": "ok"})
+
+# Root endpoint
+def root(request):
+    return JsonResponse({"message": "Backend running 🚀"})
 
 urlpatterns = [
     # Admin site
     path("admin/", admin.site.urls),
 
-    # Health check endpoint - ADD THIS TEMPORARILY
-    path("health/", lambda request: HttpResponse("OK"), name="health"),
+    # Health check
+    path("health/", health, name="health"),
 
-    # GraphQL endpoint for React frontend - CSRF COMPLETELY DISABLED for testing
+    # GraphQL endpoint
     path(
         "graphql/",
-        csrf_exempt(  # ✅ This should completely disable CSRF for GraphQL
+        csrf_exempt(
             GraphQLView.as_view(
                 schema=schema,
-                graphiql=True  # Enable GraphiQL interface
+                graphiql=True  # Enable GraphiQL interface in browser
             )
         ),
         name="graphql"
     ),
 
-    # Redirect root URL to admin login page
-    path("", RedirectView.as_view(url="/admin/", permanent=False)),
+    # Root URL
+    path("", root, name="root"),
 ]
