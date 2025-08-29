@@ -12,7 +12,8 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    ".onrender.com",  # allow all Render subdomains
+    "internshipapp-backend.onrender.com",
+    ".onrender.com",  # allow ALL Render subdomains
 ]
 
 # Add Render external hostname dynamically
