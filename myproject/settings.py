@@ -12,7 +12,7 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "internshipapp-backend.onrender.com",  # Render domain
+    ".onrender.com",  # allow all Render subdomains
 ]
 
 # Add Render external hostname dynamically
@@ -142,6 +142,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "https://internshipapp-backend.onrender.com",
+    "https://*.onrender.com",  # allow ALL Render subdomains
 ]
 
 if RENDER_EXTERNAL_HOSTNAME:
@@ -178,4 +179,3 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-

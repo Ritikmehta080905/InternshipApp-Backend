@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.urls import path
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
+from django.views.generic import RedirectView
 
-# Import schema consistently from myapp (not myproject)
+# Import schema consistently from myapp
 from myapp.schema import schema  
 
 # Health check endpoint
@@ -28,7 +29,7 @@ urlpatterns = [
         csrf_exempt(
             GraphQLView.as_view(
                 schema=schema,
-                graphiql=True  # Enable GraphiQL interface in browser
+                graphiql=True  # Enable GraphiQL interface
             )
         ),
         name="graphql"
@@ -36,4 +37,7 @@ urlpatterns = [
 
     # Root URL
     path("", root, name="root"),
+
+    # ✅ Handle favicon.ico request (fixes 400/404 errors)
+    path("favicon.ico", lambda request: HttpResponse("", content_type="image/x-icon")),
 ]
