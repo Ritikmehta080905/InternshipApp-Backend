@@ -173,7 +173,7 @@ GRAPHQL_JWT = {
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
     'JWT_EXPIRATION_DELTA': timedelta(days=7),
-    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=30),
+    'JWT_REFRESH_EXPIRATION_DELta': timedelta(days=30),
 }
 
 # ---------------- PRODUCTION SETTINGS ----------------
@@ -187,3 +187,15 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# TEMPORARY CSRF RELAXATION FOR TESTING - REMOVE AFTER IT WORKS
+if not DEBUG:
+    # Allow all origins temporarily
+    CSRF_TRUSTED_ORIGINS = [
+        "https://*",
+        "http://*",
+        "https://internshipapp-backend.onrender.com",
+        "https://*.vercel.app"
+    ]
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
