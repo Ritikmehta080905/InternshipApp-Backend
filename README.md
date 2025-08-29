@@ -1,5 +1,5 @@
 # 🔍 INTERNSHIP APP BACKEND
-*Django + GraphQL + PostgreSQL powered job portal backend*
+*Django + GraphQL + PostgreSQL powered Book Management*
 
 <div align="center">
   <img src="https://img.shields.io/badge/Django-5.2+-092E20?style=for-the-badge&logo=django" alt="Django">
