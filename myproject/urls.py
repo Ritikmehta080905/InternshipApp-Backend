@@ -10,13 +10,13 @@ urlpatterns = [
     # Admin site
     path("admin/", admin.site.urls),
 
-    # GraphQL endpoint for React frontend
+    # GraphQL endpoint for React frontend - CSRF COMPLETELY DISABLED for testing
     path(
         "graphql/",
-        csrf_exempt(
+        csrf_exempt(  # ✅ This should completely disable CSRF for GraphQL
             GraphQLView.as_view(
                 schema=schema,
-                graphiql=True  # ✅ CHANGE TO True - This enables proper request handling
+                graphiql=True  # Enable GraphiQL interface
             )
         ),
         name="graphql"
