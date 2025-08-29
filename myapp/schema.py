@@ -1,4 +1,3 @@
-
 import graphene
 from graphene_django import DjangoObjectType
 from .models import Book, Favorite
@@ -10,7 +9,6 @@ class BookType(DjangoObjectType):
         model = Book
         fields = ("id", "title", "author", "description", "publish_year", "cover_image")
 
-# Add pagination types
 class BookPaginationType(graphene.ObjectType):
     books = graphene.List(BookType)
     total_count = graphene.Int()
@@ -120,19 +118,19 @@ class DeleteBook(graphene.Mutation):
 
 class ToggleFavorite(graphene.Mutation):
     class Arguments:
-        book_id = graphene.Int(required=True)  # ← CHANGE TO book_id
+        book_id = graphene.Int(required=True)
         add = graphene.Boolean(required=True)
 
     success = graphene.Boolean()
     book = graphene.Field(BookType)
 
     @classmethod
-    def mutate(cls, root, info, bookId, add):
+    def mutate(cls, root, info, book_id, add):  # ← FIXED parameter name to match
         user = info.context.user
         if user.is_anonymous:
             return ToggleFavorite(success=False, book=None)
         try:
-            book = Book.objects.get(pk=bookId)
+            book = Book.objects.get(pk=book_id)  # ← Use book_id here
         except Book.DoesNotExist:
             return ToggleFavorite(success=False, book=None)
 
@@ -148,3 +146,6 @@ class Mutation(graphene.ObjectType):
     update_book = UpdateBook.Field()
     delete_book = DeleteBook.Field()
     toggle_favorite = ToggleFavorite.Field()
+
+# ADD THESE LINES TO EXPORT THE CLASSES
+__all__ = ['Query', 'Mutation']
