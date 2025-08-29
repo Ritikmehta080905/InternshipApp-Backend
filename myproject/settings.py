@@ -173,7 +173,7 @@ GRAPHQL_JWT = {
     'JWT_VERIFY_EXPIRATION': True,
     'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
     'JWT_EXPIRATION_DELTA': timedelta(days=7),
-    'JWT_REFRESH_EXPIRATION_DELta': timedelta(days=30),
+    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=30),
 }
 
 # ---------------- PRODUCTION SETTINGS ----------------
@@ -199,3 +199,25 @@ if not DEBUG:
     ]
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = True
+
+# DEBUG: Check database connection
+print("🔄 Checking database connection...")
+try:
+    import psycopg2
+    conn = psycopg2.connect(os.environ.get('DATABASE_URL', ''))
+    print("✅ Database connection successful!")
+    conn.close()
+except Exception as e:
+    print(f"❌ Database connection failed: {e}")
+
+# DEBUG: Check Django setup
+print("🔄 Checking Django setup...")
+try:
+    import django
+    from django.conf import settings
+    if not settings.configured:
+        settings.configure()
+    django.setup()
+    print("✅ Django setup successful!")
+except Exception as e:
+    print(f"❌ Django setup failed: {e}")
