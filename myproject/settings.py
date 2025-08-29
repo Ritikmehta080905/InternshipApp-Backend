@@ -10,13 +10,13 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ---------------- SECURITY ----------------
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-fallback-key-for-development-only')
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "internshipapp-backend.onrender.com",  # Added explicit Render domain
+    "internshipapp-backend.onrender.com",
 ]
 
 # Add Render domain dynamically
@@ -86,12 +86,8 @@ if os.environ.get('DATABASE_URL'):
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST', 'localhost'),
-            'PORT': os.getenv('DB_PORT', '5432'),
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
@@ -112,6 +108,14 @@ USE_TZ = True
 # ---------------- STATIC & MEDIA ----------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
+# WhiteNoise configuration
+if not DEBUG:
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -125,7 +129,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",   # Django dev
     "http://127.0.0.1:8000",
     "https://*.vercel.app",    # Vercel deployment
-    "https://internshipapp-backend.onrender.com",  # Explicit Render URL
+    "https://internshipapp-backend.onrender.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -149,8 +153,8 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://*.vercel.app",    # Vercel deployment
-    "https://internshipapp-backend.onrender.com",  # Explicit Render URL
+    "https://*.vercel.app",
+    "https://internshipapp-backend.onrender.com",
 ]
 
 if RENDER_EXTERNAL_HOSTNAME:
@@ -158,22 +162,7 @@ if RENDER_EXTERNAL_HOSTNAME:
 
 # ---------------- GRAPHQL ----------------
 GRAPHENE = {
-    'SCHEMA': 'myapp.schema.schema',
-    'MIDDLEWARE': [
-        'graphql_jwt.middleware.JSONWebTokenMiddleware',
-    ],
-}
-
-AUTHENTICATION_BACKENDS = [
-    'graphql_jwt.backends.JSONWebTokenBackend',
-    'django.contrib.auth.backends.ModelBackend',
-]
-
-GRAPHQL_JWT = {
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_LONG_RUNNING_REFRESH_TOKEN': True,
-    'JWT_EXPIRATION_DELTA': timedelta(days=7),
-    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=30),
+    'SCHEMA': 'myproject.schema.schema',  # Changed to project-level schema
 }
 
 # ---------------- PRODUCTION SETTINGS ----------------
@@ -188,14 +177,23 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# TEMPORARY CSRF RELAXATION FOR TESTING - REMOVE AFTER IT WORKS
+# TEMPORARY CSRF RELAXATION FOR TESTING
 if not DEBUG:
-    # Allow all origins temporarily
-    CSRF_TRUSTED_ORIGINS = [
-        "https://*",
-        "http://*",
-        "https://internshipapp-backend.onrender.com",
-        "https://*.vercel.app"
-    ]
+    # Allow all origins temporarily for testing
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOW_CREDENTIALS = True
+
+# ---------------- LOGGING ----------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
