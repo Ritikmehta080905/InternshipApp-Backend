@@ -11,11 +11,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ---------------- SECURITY ----------------
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'False') == 'true'
+DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
+    "internshipapp-backend.onrender.com",  # Added explicit Render domain
 ]
 
 # Add Render domain dynamically
@@ -124,6 +125,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",   # Django dev
     "http://127.0.0.1:8000",
     "https://*.vercel.app",    # Vercel deployment
+    "https://internshipapp-backend.onrender.com",  # Explicit Render URL
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -148,6 +150,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
     "https://*.vercel.app",    # Vercel deployment
+    "https://internshipapp-backend.onrender.com",  # Explicit Render URL
 ]
 
 if RENDER_EXTERNAL_HOSTNAME:
