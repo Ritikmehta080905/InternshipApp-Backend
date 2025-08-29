@@ -187,3 +187,39 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# TEMPORARY CSRF RELAXATION FOR TESTING - REMOVE AFTER IT WORKS
+if not DEBUG:
+    # Allow all origins temporarily
+    CSRF_TRUSTED_ORIGINS = [
+        "https://*",
+        "http://*",
+        "https://internshipapp-backend.onrender.com",
+        "https://*.vercel.app"
+    ]
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOW_CREDENTIALS = True
+
+# DEBUG: Check database connection
+print("🔄 Checking database connection...")
+try:
+    import psycopg2
+    conn = psycopg2.connect(os.environ.get('DATABASE_URL', ''))
+    print("✅ Database connection successful!")
+    conn.close()
+except Exception as e:
+    print(f"❌ Database connection failed: {e}")
+
+# DEBUG: Check Django setup
+print("🔄 Checking Django setup...")
+try:
+    import django
+    from django.conf import settings
+    if not settings.configured:
+        settings.configure()
+    django.setup()
+    print("✅ Django setup successful!")
+except Exception as e:
+    print(f"❌ Django setup failed: {e}")
+
+    

@@ -2,18 +2,36 @@ from django.contrib import admin
 from django.urls import path
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse, HttpResponse
 from django.views.generic import RedirectView
 
-from myproject.schema import schema  # Project-level GraphQL schema
+# Import schema consistently from myapp
+from myapp.schema import schema  
+
+# Health check endpoint
+def health(request):
+    return JsonResponse({"status": "ok"})
+
+# Root endpoint
+def root(request):
+    return JsonResponse({"message": "Backend running 🚀"})
+
+# Favicon handler
+def favicon(request):
+    return HttpResponse("", content_type="image/x-icon", status=204)  
+    # 204 = No Content, cleaner than returning 400/404
 
 urlpatterns = [
     # Admin site
     path("admin/", admin.site.urls),
 
-    # GraphQL endpoint for React frontend - CSRF COMPLETELY DISABLED for testing
+    # Health check
+    path("health/", health, name="health"),
+
+    # GraphQL endpoint
     path(
         "graphql/",
-        csrf_exempt(  # ✅ This should completely disable CSRF for GraphQL
+        csrf_exempt(
             GraphQLView.as_view(
                 schema=schema,
                 graphiql=True  # Enable GraphiQL interface
@@ -22,6 +40,9 @@ urlpatterns = [
         name="graphql"
     ),
 
-    # Redirect root URL to admin login page
-    path("", RedirectView.as_view(url="/admin/", permanent=False)),
+    # Root URL
+    path("", root, name="root"),
+
+    # ✅ Handle favicon.ico cleanly
+    path("favicon.ico", favicon, name="favicon"),
 ]
