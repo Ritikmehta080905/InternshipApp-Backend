@@ -16,6 +16,11 @@ def health(request):
 def root(request):
     return JsonResponse({"message": "Backend running 🚀"})
 
+# Favicon handler
+def favicon(request):
+    return HttpResponse("", content_type="image/x-icon", status=204)  
+    # 204 = No Content, cleaner than returning 400/404
+
 urlpatterns = [
     # Admin site
     path("admin/", admin.site.urls),
@@ -38,6 +43,6 @@ urlpatterns = [
     # Root URL
     path("", root, name="root"),
 
-    # ✅ Handle favicon.ico request (fixes 400/404 errors)
-    path("favicon.ico", lambda request: HttpResponse("", content_type="image/x-icon")),
+    # ✅ Handle favicon.ico cleanly
+    path("favicon.ico", favicon, name="favicon"),
 ]
