@@ -1,6 +1,9 @@
 # 🔍 INTERNSHIP APP BACKEND
 *Django + GraphQL + PostgreSQL powered Book Management*
 
+Hosted Url:https://internshipapp-backend.onrender.com/admin/ (admin)
+Hosted url:https://internshipapp-backend.onrender.com
+
 <div align="center">
   <img src="https://img.shields.io/badge/Django-5.2+-092E20?style=for-the-badge&logo=django" alt="Django">
   <img src="https://img.shields.io/badge/GraphQL-API-E10098?style=for-the-badge&logo=graphql" alt="GraphQL">
