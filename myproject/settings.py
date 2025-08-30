@@ -197,3 +197,44 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+# ---------------- AUTO SUPERUSER CREATION ----------------
+# Add this at the very bottom of the file (after all other settings)
+import os
+from django.contrib.auth import get_user_model
+from django.db.utils import OperationalError
+
+def create_superuser_if_missing():
+    """
+    Automatically create superuser if environment variables are set
+    and user doesn't already exist. This runs every time the app starts.
+    """
+    try:
+        User = get_user_model()
+        superuser_username = os.environ.get('DJANGO_SUPERUSER_USERNAME')
+        superuser_email = os.environ.get('DJANGO_SUPERUSER_EMAIL') 
+        superuser_password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+        
+        # Check if all environment variables are set
+        if all([superuser_username, superuser_email, superuser_password]):
+            # Check if user already exists
+            if not User.objects.filter(username=superuser_username).exists():
+                User.objects.create_superuser(
+                    username=superuser_username,
+                    email=superuser_email,
+                    password=superuser_password
+                )
+                print(f"✅ Superuser '{superuser_username}' created successfully!")
+            else:
+                print(f"ℹ️ Superuser '{superuser_username}' already exists.")
+        else:
+            print("ℹ️ Superuser environment variables not set. Skipping auto-creation.")
+            
+    except OperationalError:
+        # Database might not be ready/migrated yet
+        print("⏳ Database not ready for superuser creation yet.")
+    except Exception as e:
+        print(f"❌ Error creating superuser: {e}")
+
+# Run the function when settings are loaded
+create_superuser_if_missing()
