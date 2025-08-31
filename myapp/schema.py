@@ -6,9 +6,17 @@ from django.core.paginator import Paginator
 
 # ---------------------- Types ----------------------
 class BookType(DjangoObjectType):
+    is_favorite = graphene.Boolean()  # ✅ Added field
+
     class Meta:
         model = Book
         fields = ("id", "title", "author", "description", "publish_year", "cover_image")
+
+    def resolve_is_favorite(self, info):
+        user = info.context.user
+        if user.is_anonymous:
+            return False
+        return Favorite.objects.filter(user=user, book=self).exists()
 
 class BookPaginationType(graphene.ObjectType):
     books = graphene.List(BookType)
