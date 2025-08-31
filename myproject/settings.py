@@ -128,7 +128,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",   # Django dev
     "http://127.0.0.1:8000",
     "https://internship-app-frontend-one.vercel.app",  # ✅ your Vercel frontend
-    "https://internshipapp-backend.onrender.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -198,7 +197,6 @@ LOGGING = {
 }
 
 # ---------------- AUTO SUPERUSER CREATION ----------------
-# Add this at the very bottom of the file (after all other settings)
 import os
 from django.contrib.auth import get_user_model
 from django.db.utils import OperationalError
